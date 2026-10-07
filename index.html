@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>동물 유형으로 알아보는 나의 행동 심리 테스트</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-amber-50 via-orange-50 to-emerald-50 text-slate-800 font-sans min-h-screen py-10 px-4 sm:px-6">
+
+    <div class="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-amber-100">
+        
+        <!-- 헤더 영역 -->
+        <header class="bg-gradient-to-r from-amber-500 via-orange-500 to-emerald-500 text-white py-10 px-6 text-center relative overflow-hidden">
+            <h1 class="text-3xl sm:text-4xl font-black tracking-tight mb-2">🐾 나의 동물 성향 심리 테스트 🐾</h1>
+            <p class="text-amber-100 text-sm sm:text-base font-light max-w-lg mx-auto">
+                일상 행동 습관으로 알아보는 나만의 정글 동물 캐릭터! 솔직하게 답하고 Gemini의 심층 분석을 확인해보세요.
+            </p>
+        </header>
+
+        <main class="p-6 sm:p-10 space-y-8">
+
+            <!-- API 키 입력 섹션 -->
+            <section class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-5 shadow-inner">
+                <label for="apiKey" class="block font-semibold text-slate-700 mb-1 flex items-center gap-2">
+                    <span>🔑</span> Gemini API 키 입력
+                </label>
+                <p class="text-xs text-slate-500 mb-3">
+                    Google AI Studio에서 발급받은 API Key를 입력하세요. (AI가 동물 성향 및 스트레스 분석 리포트를 작성합니다.)
+                </p>
+                <input type="password" id="apiKey" placeholder="AIzaSy..." 
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 transition text-sm bg-white">
+            </section>
+
+            <!-- 심리검사 질문 폼 -->
+            <form id="quizForm" class="space-y-6">
+                <div id="questionsContainer" class="space-y-6">
+                    <!-- 질문 항목 동적 생성 -->
+                </div>
+
+                <!-- 제출 버튼 -->
+                <div class="pt-6 text-center">
+                    <button type="button" onclick="calculateAnimalResult()" 
+                        class="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-95 text-white font-black text-lg rounded-2xl shadow-lg hover:shadow-orange-500/20 transition duration-200 transform">
+                        🦁 나의 동물 성향 결과 확인하기
+                    </button>
+                </div>
+            </form>
+
+            <!-- 로딩 표시기 -->
+            <div id="loading" class="hidden text-center py-12">
+                <div class="inline-block animate-bounce text-4xl mb-2">🌴</div>
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-amber-500 border-t-transparent"></div>
+                <p class="mt-4 text-slate-700 font-bold">Gemini가 행동 심리 패턴을 분석하는 중입니다...</p>
+            </div>
+
+            <!-- 결과 영역 (초기 숨김) -->
+            <section id="resultSection" class="hidden border-t border-slate-200 pt-8 mt-8 space-y-6">
+                
+                <!-- 동물 캐릭터 결과 카 -->
+                <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-8 text-center text-white shadow-xl relative overflow-hidden">
+                    <div id="animalEmoji" class="text-7xl mb-2 animate-pulse">🦁</div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-amber-200 bg-white/20 px-3 py-1 rounded-full">당신의 대표 동물 캐릭터</span>
+                    <h2 id="animalTitle" class="text-3xl sm:text-4xl font-black mt-3 tracking-wide">
+                        ----
+                    </h2>
+                    <p id="animalCatchphrase" class="text-sm sm:text-base text-amber-100 mt-2 italic">
+                        ---
+                    </p>
+                </div>
+
+                <!-- 행동 성향 능력치 -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span>📊</span> 나의 행동 패턴 지표
+                    </h3>
+                    <div id="statsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm font-medium">
+                        <!-- 스탯 미터기 동적 생성 -->
+                    </div>
+                </div>
+
+                <!-- Gemini AI 심층 리포트 -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b pb-3">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <span>✨</span> Gemini 행동 심리 리포트
+                        </h3>
+                        <button onclick="copyResult()" class="text-xs px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 font-bold rounded-lg transition">
+                            📋 결과 복사하기
+                        </button>
+                    </div>
+                    <div id="aiAnalysisText" class="text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line">
+                        <!-- AI 분석 결과 -->
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+
+    <!-- JavaScript 로직 -->
+    <script>
+        // 8가지 상황별 행동 질문 데이터
+        const questions = [
+            {
+                id: 'q1',
+                title: 'Q1. 주말에 예정되었던 약속이 갑자기 취소되었을 때 나의 첫 반응은?',
+                options: [
+                    { label: '‘오예! 나만의 자유시간이다!’ 집에서 뒹굴거린다.', type: 'SLOTH' },
+                    { label: '다른 친구에게 즉시 연락해서 새로운 약속을 잡는다.', type: 'DOLPHIN' },
+                    { label: '평소 못 했던 일이나 공부, 자기계발 계획을 세운다.', type: 'OWL' },
+                    { label: '갑작스러운 변화에 살짝 당황하지만 금방 상황을 받아들인다.', type: 'RETRIEVER' }
+                ]
+            },
+            {
+                id: 'q2',
+                title: 'Q2. 여러 명이서 모여 새로운 프로젝트/과제를 시작할 때 나는?',
+                options: [
+                    { label: '자연스럽게 나서서 역할 분담을 정하고 방향을 이끈다.', type: 'LION' },
+                    { label: '자료 조사나 세부 규칙, 오류 점검을 세밀하게 담당한다.', type: 'OWL' },
+                    { label: '분위기가 딱딱해지지 않도록 유머와 리액션으로 분위기를 띄운다.', type: 'DOLPHIN' },
+                    { label: '팀원들 간의 갈등이 생기지 않도록 중재하고 서로를 격려한다.', type: 'RETRIEVER' }
+                ]
+            },
+            {
+                id: 'q3',
+                title: 'Q3. 식당에서 주문한 메뉴와 다른 음식이 나왔을 때 나는?',
+                options: [
+                    { label: '바로 직원에게 얘기해서 원래 주문한 메뉴로 변경한다.', type: 'LION' },
+                    { label: '그냥 먹어도 괜찮으니 군말 없이 먹는다.', type: 'RETRIEVER' },
+                    { label: '친구가 말릴 때까지 잠시 어떻게 할지 고민하며 상황을 살핀다.', type: 'WOLF' },
+                    { label: '‘오 이것도 맛있겠는데?’ 하며 개의치 않고 먹는다.', type: 'SLOTH' }
+                ]
+            },
+            {
+                id: 'q4',
+                title: 'Q4. 친구가 나에게 고민을 털어놓을 때 나의 대화 스타일은?',
+                options: [
+                    { label: '상대방의 감정에 깊이 공감해주며 함께 눈물지어 준다.', type: 'RETRIEVER' },
+                    { label: '원인이 무엇인지 분석하고 해결책과 대안을 제시해준다.', type: 'OWL' },
+                    { label: '우울해하지 않도록 맛있는 걸 먹으러 가거나 분위기를 전환한다.', type: 'DOLPHIN' },
+                    { label: '내 삶의 기준과 가치관에 비추어 솔직하고 단호하게 조언해준다.', type: 'WOLF' }
+                ]
+            },
+            {
+                id: 'q5',
+                title: 'Q5. 스트레스가 극에 달했을 때 나만의 해소법은?',
+                options: [
+                    { label: '혼자 차분히 시간을 가지며 생각을 정리하거나 잠을 자둔다.', type: 'SLOTH' },
+                    { label: '격렬한 운동을 하거나 확실한 목표를 달성하며 푼다.', type: 'LION' },
+                    { label: '친한 사람들과 수다를 떨거나 신나는 음악을 들으며 소리쳐 발산한다.', type: 'DOLPHIN' },
+                    { label: '독서, 게임, 취미 등 나만의 아지트 공간에서 탐닉한다.', type: 'WOLF' }
+                ]
+            },
+            {
+                id: 'q6',
+                title: 'Q6. 일을 처리할 때 내가 가장 중요하게 생각하는 것은?',
+                options: [
+                    { label: '속도와 확실한 성과 결과물', type: 'LION' },
+                    { label: '정확성과 오차 없는 디테일', type: 'OWL' },
+                    { label: '함께 일하는 사람들과의 화합과 즐거움', type: 'DOLPHIN' },
+                    { label: '변수 없이 평온하고 안정적으로 끝내는 것', type: 'SLOTH' }
+                ]
+            },
+            {
+                id: 'q7',
+                title: 'Q7. 새로운 낯선 모임장소에 갔을 때 나의 모습은?',
+                options: [
+                    { label: '먼저 다가가 인사를 건네며 쉽게 금방 사람들과 친해진다.', type: 'DOLPHIN' },
+                    { label: '구석이나 편한 자리를 찾아 상황을 유심히 관찰한다.', type: 'WOLF' },
+                    { label: '상대방이 말을 건네오면 친절하게 대답하며 리액션해준다.', type: 'RETRIEVER' },
+                    { label: '중심에 서서 주도권을 잡고 이야기를 끌어나간다.', type: 'LION' }
+                ]
+            },
+            {
+                id: 'q8',
+                title: 'Q8. 나를 표현하는 가장 어울리는 단어 하나를 꼽는다면?',
+                options: [
+                    { label: '자유로움과 느긋함', type: 'SLOTH' },
+                    { label: '통찰력과 독립성', type: 'WOLF' },
+                    { label: '신뢰감과 따뜻함', type: 'RETRIEVER' },
+                    { label: '논리와 완벽함', type: 'OWL' }
+                ]
+            }
+        ];
+
+        // 동물 유형 정보
+        const animalMeta = {
+            'LION': { name: '추진력 대장 사자 🦁', emoji: '🦁', phrase: '‘목표가 정해졌다면 주저 없이 전진!’', drive: 95, empathy: 60, analysis: 75, freedom: 80 },
+            'WOLF': { name: '독립적인 통찰가 늑대 🐺', emoji: '🐺', phrase: '‘나만의 주관과 원칙을 묵묵히 지켜나간다’', drive: 80, empathy: 50, analysis: 90, freedom: 95 },
+            'DOLPHIN': { name: '긍정 에너지 돌고래 🐬', emoji: '🐬', phrase: '‘언제 어디서나 세상은 즐거움으로 가득해!’', drive: 70, empathy: 85, analysis: 60, freedom: 90 },
+            'OWL': { name: '신중한 분석가 부엉이 🦉', emoji: '🦉', phrase: '‘디테일과 논리가 갖춰져야 완벽한 결과가 나온다’', drive: 65, empathy: 55, analysis: 98, freedom: 50 },
+            'RETRIEVER': { name: '마음 따뜻한 골든리트리버 🐕', emoji: '🐕', phrase: '‘너의 기쁨이 곧 나의 행복이야’', drive: 60, empathy: 98, analysis: 65, freedom: 60 },
+            'SLOTH': { name: '평화로운 힐러 나무늘보 🦥', emoji: '🦥', phrase: '‘느려도 괜찮아, 중요한 건 마음의 평화!’', drive: 40, empathy: 80, analysis: 70, freedom: 90 }
+        };
+
+        // 질문 항목 생성
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('questionsContainer');
+            questions.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = "p-5 bg-white border border-amber-100 rounded-2xl hover:border-amber-300 transition shadow-sm";
+                
+                let optionsHtml = q.options.map((opt, i) => `
+                    <label class="flex items-start p-3 rounded-xl border border-slate-100 hover:bg-amber-50/60 cursor-pointer transition">
+                        <input type="radio" name="${q.id}" value="${opt.type}" class="mt-1 h-4 w-4 text-amber-500 focus:ring-amber-500 border-slate-300">
+                        <span class="ml-3 text-sm text-slate-700 font-medium">${opt.label}</span>
+                    </label>
+                `).join('');
+
+                card.innerHTML = `
+                    <p class="font-bold text-slate-800 text-base mb-3">
+                        <span class="text-amber-600 mr-1">${q.title.split('.')[0]}.</span> ${q.title.split('. ')[1]}
+                    </p>
+                    <div class="space-y-2">${optionsHtml}</div>
+                `;
+                container.appendChild(card);
+            });
+        });
+
+        // 결과 계산 및 AI 분석 실행
+        async function calculateAnimalResult() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            if (!apiKey) {
+                alert('Gemini API 키를 입력해 주세요!');
+                document.getElementById('apiKey').focus();
+                return;
+            }
+
+            let counts = { LION: 0, WOLF: 0, DOLPHIN: 0, OWL: 0, RETRIEVER: 0, SLOTH: 0 };
+            let allAnswered = true;
+
+            questions.forEach(q => {
+                const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+                if (!selected) {
+                    allAnswered = false;
+                } else {
+                    counts[selected.value]++;
+                }
+            });
+
+            if (!allAnswered) {
+                alert('모든 질문에 답해 주세요!');
+                return;
+            }
+
+            // 가장 높은 점수의 동물 유형 선정
+            let topAnimal = 'LION';
+            let maxScore = -1;
+            for (const [type, score] of Object.entries(counts)) {
+                if (score > maxScore) {
+                    maxScore = score;
+                    topAnimal = type;
+                }
+            }
+
+            // UI 변경
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+
+            const meta = animalMeta[topAnimal];
+            document.getElementById('animalTitle').innerText = meta.name;
+            document.getElementById('animalCatchphrase').innerText = meta.phrase;
+            document.getElementById('animalEmoji').innerText = meta.emoji;
+
+            // 스탯 미터기 생성
+            document.getElementById('statsContainer').innerHTML = `
+                <div class="p-3 bg-white rounded-xl border border-slate-100">
+                    <div class="flex justify-between text-xs mb-1"><span>🚀 추진력</span><span>${meta.drive}%</span></div>
+                    <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width:${meta.drive}%"></div></div>
+                </div>
+                <div class="p-3 bg-white rounded-xl border border-slate-100">
+                    <div class="flex justify-between text-xs mb-1"><span>❤️ 공감도</span><span>${meta.empathy}%</span></div>
+                    <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-rose-400 h-2 rounded-full" style="width:${meta.empathy}%"></div></div>
+                </div>
+                <div class="p-3 bg-white rounded-xl border border-slate-100">
+                    <div class="flex justify-between text-xs mb-1"><span>🧐 분석력</span><span>${meta.analysis}%</span></div>
+                    <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-blue-400 h-2 rounded-full" style="width:${meta.analysis}%"></div></div>
+                </div>
+                <div class="p-3 bg-white rounded-xl border border-slate-100">
+                    <div class="flex justify-between text-xs mb-1"><span>🕊️ 자유도</span><span>${meta.freedom}%</span></div>
+                    <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-emerald-400 h-2 rounded-full" style="width:${meta.freedom}%"></div></div>
+                </div>
+            `;
+
+            const promptText = `
+            사용자의 행동 심리 테스트 결과 동물 유형: [${meta.name}]
+            
+            이 사람의 행동 패턴에 대해 재미있고 친근하며 유용한 어조로 심층 리포트를 작성해 주세요:
+            1. 🐾 이 행동 동물의 가장 강력한 강점과 장점
+            2. ⚡ 일상생활이나 업무/학교 상황에서 나타나는 주된 행동 습관
+            3. 💆‍♂️ 스트레스를 받을 때 원인과 추천하는 힐링 해소법
+            4. 🤝 다른 동물 유형 사람들과 더 좋게 지내기 위한 관계 유지 팁
+            `;
+
+            const modelsToTry = [
+                'gemini-3.8-flash',
+                'gemini-3.5-flash',
+                'gemini-3-flash-preview'
+            ];
+
+            let aiReply = null;
+            let lastError = null;
+
+            for (const model of modelsToTry) {
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: promptText }] }]
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok || data.error) throw new Error(data.error?.message || `HTTP ${response.status}`);
+
+                    if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+                        aiReply = data.candidates[0].content.parts[0].text;
+                        break;
+                    }
+                } catch (err) {
+                    console.warn(`[${model}] 호출 실패, 다음 엔드포인트 시도...`, err);
+                    lastError = err;
+                }
+            }
+
+            document.getElementById('loading').classList.add('hidden');
+
+            if (aiReply) {
+                document.getElementById('aiAnalysisText').innerText = aiReply;
+                document.getElementById('resultSection').classList.remove('hidden');
+                document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('Gemini 분석 실패: ' + (lastError ? lastError.message : '응답을 받지 못했습니다.'));
+            }
+        }
+
+        // 결과 복사 기능
+        function copyResult() {
+            const title = document.getElementById('animalTitle').innerText;
+            const text = document.getElementById('aiAnalysisText').innerText;
+            const fullContent = `[나의 동물 성향 검사 결과]\n유형: ${title}\n\n${text}`;
+            
+            navigator.clipboard.writeText(fullContent).then(() => {
+                alert('결과가 클립보드에 복사되었습니다! 🐾');
+            });
+        }
+    </script>
+</body>
+</html>
